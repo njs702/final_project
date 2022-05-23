@@ -1,7 +1,8 @@
-# 1 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
-# 2 "c:\\Users\\USER\\final_project\\Arduino\\source.ino" 2
-# 3 "c:\\Users\\USER\\final_project\\Arduino\\source.ino" 2
-# 4 "c:\\Users\\USER\\final_project\\Arduino\\source.ino" 2
+#include <Arduino.h>
+#line 1 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+#include <dht.h>
+#include <SPI.h>
+#include <mcp_can.h>
 
 /* ============== PIN NUMBER SETTINGS ============== */
 static const int CAN_PIN = 10;
@@ -18,7 +19,7 @@ unsigned long temp_humid_can_id = 0x11;
 
 
 /* ============== GLOBAL LIBRARY VARIABLES ============== */
-dht DHT;
+dht DHT; 
 MCP_CAN CAN(CAN_PIN);
 /* ====================================================== */
 
@@ -26,7 +27,7 @@ MCP_CAN CAN(CAN_PIN);
 
 /* ============== GLOBAL custom struct & union ============== */
 typedef struct{
-    float humid;
+    float humid; 
     float temp;
 }temp_humid_data;
 
@@ -45,6 +46,17 @@ static temp_humid_data temp_humid;
 
 
 /* ============== GLOBAL functions ============== */
+#line 47 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+void read_temp_humid();
+#line 53 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+void send_temp_humid();
+#line 67 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+void CAN_INT();
+#line 95 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+void setup();
+#line 109 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+void loop();
+#line 47 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
 void read_temp_humid(){
     DHT.read11(DHT_11_PIN);
     temp_humid.humid = DHT.humidity;
@@ -71,7 +83,7 @@ void CAN_INT(){
 
     CAN.readMsgBuf(&len,buf); // get CAN data
     unsigned long canId = CAN.getCanId(); // get CAN id
-
+    
     /* Process according to ID value */
     switch (canId)
     {
@@ -79,13 +91,13 @@ void CAN_INT(){
         /* code */
         CAN.readMsgBuf(&len,buf); // CAN 데이터 가져오기
         Serial.print("\nData from ID:0x");
-        Serial.println(canId,16);
+        Serial.println(canId,HEX);
         for(int i=0;i<len;i++){
             Serial.print(buf[i]);
             Serial.print("\t");
         }
         break;
-
+    
     default:
         break;
     }
@@ -95,19 +107,20 @@ void CAN_INT(){
 
 void setup()
 {
- Serial.begin(115200);
-    while((0) != CAN.begin(12,2)){
+	Serial.begin(115200);
+    while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
         Serial.println("CAN BUS init Failed");
         delay(100);
     }
     Serial.println("CAN BUS init Success");
 
     // Run can_int function when interrupt occurs
-    attachInterrupt(((INTERRUPT_PIN) == 2 ? 0 : ((INTERRUPT_PIN) == 3 ? 1 : -1)),CAN_INT,2);
+    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN),CAN_INT,FALLING);
 
 }
 
 void loop()
 {
- send_temp_humid();
+	send_temp_humid();
 }
+
