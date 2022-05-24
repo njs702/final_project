@@ -59,7 +59,6 @@ void send_temp_humid(){
     for(int i=0;i<8;i++){
         stmp[i] = thu.second[i];
     }
-
     CAN.sendMsgBuf(temp_humid_can_id,0,8,stmp);
     delay(100);
 } // 온,습도 데이터 보내기

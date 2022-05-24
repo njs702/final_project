@@ -50,11 +50,11 @@ static temp_humid_data temp_humid;
 void read_temp_humid();
 #line 53 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
 void send_temp_humid();
-#line 67 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+#line 66 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
 void CAN_INT();
-#line 95 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+#line 94 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
 void setup();
-#line 109 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
+#line 108 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
 void loop();
 #line 47 "c:\\Users\\USER\\final_project\\Arduino\\source.ino"
 void read_temp_humid(){
@@ -72,7 +72,6 @@ void send_temp_humid(){
     for(int i=0;i<8;i++){
         stmp[i] = thu.second[i];
     }
-
     CAN.sendMsgBuf(temp_humid_can_id,0,8,stmp);
     delay(100);
 } // 온,습도 데이터 보내기
