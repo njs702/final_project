@@ -1,0 +1,47 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\standard"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\final_project\\Arduino\\build\\sketch\\source.ino.cpp",
+    "Include": "dht.h",
+    "Includepath": "C:\\Users\\USER\\OneDrive\\문서\\Arduino\\libraries\\DHT_Library"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\final_project\\Arduino\\build\\sketch\\source.ino.cpp",
+    "Include": "SPI.h",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\SPI\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\final_project\\Arduino\\build\\sketch\\source.ino.cpp",
+    "Include": "mcp_can.h",
+    "Includepath": "C:\\Users\\USER\\OneDrive\\문서\\Arduino\\libraries\\MCP2515_lib-master"
+  },
+  {
+    "Sourcefile": "c:\\Users\\USER\\final_project\\Arduino\\build\\sketch\\source.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\OneDrive\\문서\\Arduino\\libraries\\DHT_Library\\dht.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\SPI\\src\\SPI.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\USER\\OneDrive\\문서\\Arduino\\libraries\\MCP2515_lib-master\\mcp_can.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]
