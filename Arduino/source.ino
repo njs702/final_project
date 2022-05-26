@@ -52,6 +52,7 @@ void read_temp_humid(){
 
 void send_temp_humid(){
     read_temp_humid();
+
     temp_humid_union thu;
     thu.first = temp_humid;
     unsigned char stmp[8];
