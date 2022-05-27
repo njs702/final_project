@@ -145,12 +145,51 @@ void init_bind_socket_can(){
 
 	printf("CAN Socket creation & bind success!\n");
 } // CAN 소켓 생성 및 바인드 함수
+
+static void* can_communication(void* arg){
+    int nBytes;
+	//struct sockaddr_can addr;
+	struct can_frame recieve_frame;
+	struct can_frame send_frame;
+
+    struct can_filter rfilter[1];
+	rfilter[0].can_id   = 0x550;
+	rfilter[0].can_mask = 0xFF0;
+
+    while(1){
+
+        // Reading a frame
+	    nBytes = read(can_socket,&recieve_frame,sizeof(struct can_frame));
+        if (nBytes < 0){
+            perror("Read");
+            return NULL;
+        }
+
+        union temp_humid_union a;
+        for (int i = 0; i < 8; ++i)
+            a.second[i] = recieve_frame.data[i];
+        
+        // 받은 데이터 정보 저장
+        temp_humid.humid = a.first.humid;
+        temp_humid.temp = a.first.temp;
+
+        sleep(5);
+    }
+
+    if (close(can_socket) < 0) {
+		perror("Close");
+		return NULL;
+	}
+
+    return 0;
+} // CAN 통신 전용 스레드함수
 /* ============================================== */
 
 
 
 int main(int argc, char **argv){
     pthread_t thread;
+    pthread_t can_thread;
 
     init_bind_socket_tcp();
     init_bind_socket_can();
@@ -160,6 +199,9 @@ int main(int argc, char **argv){
         perror("listen()");
         return -1;
     }
+
+    // CAN 통신 처리용 쓰레드 생성
+    pthread_create(&can_thread,NULL,can_communication,NULL);
 
     while(1){
         char mesg[BUFSIZ];
@@ -181,6 +223,8 @@ int main(int argc, char **argv){
         pthread_join(thread,NULL);
     }
 
+    pthread_join(can_thread,NULL);
+    printf("CAN thread deleted!!!\n");
     return 0;
     
 }
