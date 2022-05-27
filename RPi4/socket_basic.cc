@@ -117,6 +117,34 @@ static void* client_connection(void* arg){
 
     return 0;
 } // 클라이언트 접속 시 수행하는 스레드함수
+
+void init_bind_socket_can(){
+    /* ======================  Create Socket using 3 parameters ======================
+	domain/protocol family(PF_CAN), type of socket(raw or datagram),socket protocol */
+	if((can_socket=socket(PF_CAN,SOCK_RAW,CAN_RAW)) < 0){
+		perror("Socket");
+		return;
+	}
+
+	/* Retrieve the interface index for the interface name(can0, can1, vcan0, etc ... ) */
+	strcpy(ifr.ifr_name,"can0");
+
+	/* 네트워크 관리 스택 접근을 위한 I/O controll, 사용자 영역에서 커널 영역의 데이터 접근(system call) using 3 parameters
+	an open file descriptor(s), request code number(SIOCGIFINDEX), value */
+	ioctl(can_socket,SIOCGIFINDEX,&ifr);
+
+	// Bind Socket to the CAN interface
+	memset(&addr,0,sizeof(addr));
+	addr.can_family = AF_CAN;
+	addr.can_ifindex = ifr.ifr_ifindex;
+
+	if (bind(can_socket,(struct sockaddr *)&addr, sizeof(addr)) < 0){
+		perror("Bind");
+		return;
+	}
+
+	printf("CAN Socket creation & bind success!\n");
+} // CAN 소켓 생성 및 바인드 함수
 /* ============================================== */
 
 
@@ -125,6 +153,7 @@ int main(int argc, char **argv){
     pthread_t thread;
 
     init_bind_socket_tcp();
+    init_bind_socket_can();
 
     // 최대 10대의 클라이언트 동시 접속 처리를 위한 큐 생성
     if(listen(server_socket,10)==-1){
@@ -147,7 +176,7 @@ int main(int argc, char **argv){
         // 클라이언트의 요청이 들어오면 스레드를 생성하고 클라이언트의 요청 처리
         // 클라이언트 소켓을 매개변수로 넘겨서 스레드에서 해당 소켓으로 통신
         pthread_create(&thread,NULL,client_connection,&client_socket);
-        // 쓰레드를 생성만들어서 온,습도 정보 데이터를 안드로이드로 보낸다
+        // 쓰레드를 만들어서 온,습도 정보 데이터를 안드로이드로 보낸다
 
         pthread_join(thread,NULL);
     }
