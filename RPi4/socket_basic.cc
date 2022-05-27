@@ -183,6 +183,24 @@ static void* can_communication(void* arg){
 
     return 0;
 } // CAN 통신 전용 스레드함수
+
+static void* send_message(void* arg){
+    char temp_humid_message[BUFSIZ];
+    int csock = *((int*)arg);
+    while(1){
+        sprintf(temp_humid_message,"%f %f",temp_humid.humid,temp_humid.temp);
+        if(write(csock,temp_humid_message,strlen(temp_humid_message)) == -1){
+            printf("write error(socket disconnected)\n");
+            break;
+        }
+        else{
+            printf("send message : %s\n",temp_humid_message);
+            sleep(10);
+        }
+        
+    }
+    return 0;
+} // 온,습도 정보 보내는 스레드함수
 /* ============================================== */
 
 
@@ -190,6 +208,7 @@ static void* can_communication(void* arg){
 int main(int argc, char **argv){
     pthread_t thread;
     pthread_t can_thread;
+    pthread_t send_thread;
 
     init_bind_socket_tcp();
     init_bind_socket_can();
@@ -218,9 +237,11 @@ int main(int argc, char **argv){
         // 클라이언트의 요청이 들어오면 스레드를 생성하고 클라이언트의 요청 처리
         // 클라이언트 소켓을 매개변수로 넘겨서 스레드에서 해당 소켓으로 통신
         pthread_create(&thread,NULL,client_connection,&client_socket);
+        pthread_create(&send_thread,NULL,send_message,&client_socket);
         // 쓰레드를 만들어서 온,습도 정보 데이터를 안드로이드로 보낸다
 
         pthread_join(thread,NULL);
+        pthread_join(send_thread,NULL);
     }
 
     pthread_join(can_thread,NULL);
