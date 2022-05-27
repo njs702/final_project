@@ -210,6 +210,12 @@ int main(int argc, char **argv){
     pthread_t can_thread;
     pthread_t send_thread;
 
+    struct sigaction new_actn, old_actn;
+    new_actn.sa_handler = SIG_IGN;
+    sigemptyset (&new_actn.sa_mask);
+    new_actn.sa_flags = 0;
+    sigaction (SIGPIPE, &new_actn, &old_actn);
+
     init_bind_socket_tcp();
     init_bind_socket_can();
 
