@@ -82,10 +82,76 @@ void init_bind_socket_tcp(){
     }
     printf("TCP Socket creation & bind success!\n");
 } // TCP 소켓 생성 및 바인드 함수
+
+static void* client_connection(void* arg){
+
+    // int형 파일 디스크립터로 변환
+    int csock = *((int*)arg);
+    int read_size;
+    char dataRecv;
+    char message[BUFSIZ], client_message[BUFSIZ], client_ip[BUFSIZ];
+
+    inet_ntop(AF_INET,&client_addr.sin_addr,client_ip,BUFSIZ);
+
+    // Receive a message from client
+    while(1){
+        while((read_size = recv(csock, client_message, BUFSIZ, 0)) > 0){
+            // end of string marker
+            client_message[read_size] = '\0';
+            printf("From client %s:%d: %s\n",client_ip,client_addr.sin_port,client_message);
+        }
+        // 연결 해제 신호 문자열 : ###
+        if(strcmp(client_message,"###")){
+            break;
+        }
+    }
+    
+
+    if(read_size == 0){
+        puts("Client disconnected");
+        fflush(stdout);
+    }
+    else if(read_size == -1){
+        puts("Client disconnected");
+    }
+
+    return 0;
+} // 클라이언트 접속 시 수행하는 스레드함수
 /* ============================================== */
 
 
 
-int main(){
+int main(int argc, char **argv){
+    pthread_t thread;
+
     init_bind_socket_tcp();
+
+    // 최대 10대의 클라이언트 동시 접속 처리를 위한 큐 생성
+    if(listen(server_socket,10)==-1){
+        perror("listen()");
+        return -1;
+    }
+
+    while(1){
+        char mesg[BUFSIZ];
+        int client_socket;
+
+        // 클라이언트의 요청을 기다린다
+        len = sizeof(client_addr);
+        client_socket = accept(server_socket,(struct sockaddr*)&client_addr,&len);
+
+        // 네트워크 주소를 문자열로 변경
+        inet_ntop(AF_INET,&client_addr.sin_addr,mesg,BUFSIZ);
+        printf("Client IP : %s:%d\n",mesg,ntohs(client_addr.sin_port));
+
+        // 클라이언트의 요청이 들어오면 스레드를 생성하고 클라이언트의 요청 처리
+        // 클라이언트 소켓을 매개변수로 넘겨서 스레드에서 해당 소켓으로 통신
+        pthread_create(&thread,NULL,client_connection,&client_socket);
+        // 쓰레드를 생성만들어서 온,습도 정보 데이터를 안드로이드로 보낸다
+
+        pthread_join(thread,NULL);
+    }
+
+    return 0;
+    
 }
