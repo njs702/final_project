@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <mcp_can.h>
 #include <Wire.h>
+#include <SoftwareSerial.h> 
 
 /* ============== PIN NUMBER SETTINGS ============== */
 static const int CAN_PIN = 10;
@@ -26,6 +27,7 @@ unsigned long ultra_data_id = 0x14;
 /* ============== GLOBAL LIBRARY VARIABLES ============== */
 dht DHT; 
 MCP_CAN CAN(CAN_PIN);
+SoftwareSerial BTSerial(2, 3); // HC-06모듈 RX=3, TX=2
 /* ====================================================== */
 
 
@@ -76,6 +78,7 @@ union distance_union{
 static temp_humid_data temp_humid;
 static Vector7i data;
 static const int MPU_addr = 0x68;
+static char joystick_data='0';
 /* ============================================== */
 
 
@@ -208,14 +211,36 @@ void getData (Vector7i* data) {
     data->GyY = Wire.read() << 8 | Wire.read();
     data->GyZ = Wire.read() << 8 | Wire.read();
 }
-/* ============================================== */
 
+void joystick_read(){
+    if(BTSerial.available()){
+        joystick_data=BTSerial.read();
+    }
+    switch (joystick_data)
+    {
+    case '0':
+        break;
+    case '1':
+        break;
+    case '2':
+        break;
+    case '3':
+        break;
+    case '4':
+        break;    
+    default:
+        break;
+    }
+}
+
+/* ============================================== */
 
 void setup()
 {   
     initGyro();
     initUltrasonic();
 	Serial.begin(115200);
+    BTSerial.begin(115200);  
     while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
         Serial.println("CAN BUS init Failed");
         delay(100);
@@ -226,11 +251,11 @@ void setup()
 
 }
 
-
 void loop()
 {      
     getData(&data);
     send_temp_humid();
     sendUltraData();
     send_gyro_data();
+    joystick_read();
 }
