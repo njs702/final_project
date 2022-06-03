@@ -14,6 +14,8 @@ static const int INTERRUPT_PIN = 2;
 
 /* ============== CAN ID SETTINGS ============== */
 unsigned long temp_humid_can_id = 0x11;
+unsigned long gyro_data_id_front = 0x12;
+unsigned long gyro_data_id_back = 0x13;
 /* ============================================= */
 
 
@@ -31,11 +33,6 @@ typedef struct{
     float temp;
 }temp_humid_data;
 
-union temp_humid_union{
-    temp_humid_data first;
-    unsigned char second[8];
-};
-
 struct Vector7i {
     uint16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 };
@@ -44,12 +41,17 @@ struct Vector7f {
     float AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 };
 
-union vector7i_conv {
+union temp_humid_union{
+    temp_humid_data first;
+    unsigned char second[8];
+};
+
+union vector7i_union {
     Vector7i first;
     unsigned char second[16];
 };
 
-union vector7f_conv {
+union vector7f_union {
     Vector7f first;
     unsigned char second[16];
 };
@@ -64,7 +66,7 @@ union vector7f_conv {
 
 /* ============== GLOBAL variables ============== */
 static temp_humid_data temp_humid;
-Vector7i data;
+static Vector7i data;
 static const int MPU_addr = 0x68;
 /* ============================================== */
 
@@ -91,6 +93,28 @@ void send_temp_humid(){
 
 
 } // 온,습도 데이터 보내기
+
+void send_gyro_data(){
+    vector7i_union v7u;
+
+    v7u.first = data;
+    unsigned char front[8];
+    unsigned char back[8];
+
+    for(int i=0;i<8;i++){
+        front[i] = v7u.second[i];
+    }
+    for(int i=0;i<8;i++){
+        back[i] = v7u.second[i+8];
+    }
+    
+    CAN.sendMsgBuf(gyro_data_id_front,0,8,front);
+    delay(10);
+
+    CAN.sendMsgBuf(gyro_data_id_back,0,8,back);
+    delay(10);
+
+} // 자이로 센서값 데이터 보내기
 
 void CAN_INT(){
     unsigned char len = 0;
@@ -159,9 +183,11 @@ void setup()
 }
 
 
-
 void loop()
 {      
     getData(&data);
-	send_temp_humid();
+    Serial.println(data.AcX);
+    Serial.println(data.AcY);
+    send_temp_humid();
+    send_gyro_data();
 }

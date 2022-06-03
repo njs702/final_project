@@ -36,10 +36,19 @@ typedef struct{
 	float temp; 
 }temp_humid_data;
 
+struct Vector7i{
+    uint16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
+};
+
 union temp_humid_union {
     temp_humid_data first;
     unsigned char second[8];
 }; 
+
+union vector7i_union {
+    Vector7i first;
+    unsigned char second[16];
+};
 /* ========================================================== */
 
 
@@ -49,6 +58,7 @@ static int server_socket; // TCP socket
 static struct sockaddr_in server_addr, client_addr;
 
 static temp_humid_data temp_humid;
+static Vector7i v7i; // gyro data
 
 static int can_socket; // CAN socket
 static struct sockaddr_can addr;
@@ -165,15 +175,50 @@ static void* can_communication(void* arg){
             return NULL;
         }
 
-        union temp_humid_union a;
-        for (int i = 0; i < 8; ++i)
-            a.second[i] = recieve_frame.data[i];
-        
-        // 받은 데이터 정보 저장
-        temp_humid.humid = a.first.humid;
-        temp_humid.temp = a.first.temp;
+        // 수신 id에 따른 분기 처리
+        switch(recieve_frame.can_id){
+            // 온습도 데이터 id값 수신
+            case 0x11:
+                static union temp_humid_union a;
+                for (int i = 0; i < 8; ++i)
+                    a.second[i] = recieve_frame.data[i];
+                
+                temp_humid.humid = a.first.humid;
+                temp_humid.temp = a.first.temp;
+                break;
 
-        sleep(5);
+            // 자이로 센서 앞 4개 데이터 수신
+            case 0x12:
+                static union vector7i_union b;
+                for(int i=0;i<8;i++){
+                    b.second[i] = recieve_frame.data[i];
+                }
+                v7i.AcX = b.first.AcX;
+                v7i.AcY = b.first.AcY;
+                v7i.AcZ = b.first.AcZ;
+                v7i.Tmp = b.first.Tmp;
+                break;
+            
+            // 자이로 센서 뒤 4개 데이터 수신
+            case 0x13:
+                static union vector7i_union c;
+                for(int i=0;i<8;i++){
+                    c.second[i+8] = recieve_frame.data[i];
+                }
+                v7i.GyX = c.first.GyX;
+                v7i.GyY = c.first.GyY;
+                v7i.GyZ = c.first.GyZ;
+                break;
+
+            default:
+                break;
+        }
+
+        /* printf("%f %f\n",temp_humid.humid,temp_humid.temp);
+        printf("%d %d\n",v7i.AcX,v7i.AcY);
+        printf("%d %d\n",v7i.GyX,v7i.GyY); */
+
+        sleep(0.3);
     }
 
     if (close(can_socket) < 0) {
@@ -246,10 +291,12 @@ int main(int argc, char **argv){
         pthread_create(&send_thread,NULL,send_message,&client_socket);
         // 쓰레드를 만들어서 온,습도 정보 데이터를 안드로이드로 보낸다
 
-        pthread_join(thread,NULL);
-        pthread_join(send_thread,NULL);
+        /* pthread_join(thread,NULL);
+        pthread_join(send_thread,NULL); */
     }
 
+    pthread_join(thread,NULL);
+    pthread_join(send_thread,NULL);
     pthread_join(can_thread,NULL);
     printf("CAN thread deleted!!!\n");
     return 0;
