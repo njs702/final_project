@@ -8,12 +8,17 @@ static const int CAN_PIN = 10;
 static const int GYRO_PIN = 14;
 static const int DHT_11_PIN = 3;
 static const int INTERRUPT_PIN = 2;
+static constexpr int ECHO_PIN = 8;
+static constexpr int TRIG_PIN = 9;
 /* ================================================= */
 
 
 
 /* ============== CAN ID SETTINGS ============== */
 unsigned long temp_humid_can_id = 0x11;
+unsigned long gyro_data_id_front = 0x12;
+unsigned long gyro_data_id_back = 0x13;
+unsigned long ultra_data_id = 0x14;
 /* ============================================= */
 
 
@@ -31,11 +36,6 @@ typedef struct{
     float temp;
 }temp_humid_data;
 
-union temp_humid_union{
-    temp_humid_data first;
-    unsigned char second[8];
-};
-
 struct Vector7i {
     uint16_t AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 };
@@ -44,14 +44,24 @@ struct Vector7f {
     float AcX, AcY, AcZ, Tmp, GyX, GyY, GyZ;
 };
 
-union vector7i_conv {
+union temp_humid_union{
+    temp_humid_data first;
+    unsigned char second[8];
+};
+
+union vector7i_union {
     Vector7i first;
     unsigned char second[16];
 };
 
-union vector7f_conv {
+union vector7f_union {
     Vector7f first;
     unsigned char second[16];
+};
+
+union distance_union{
+    float first;
+    unsigned char second[8];
 };
 
 /* ========================================================== */
@@ -64,7 +74,7 @@ union vector7f_conv {
 
 /* ============== GLOBAL variables ============== */
 static temp_humid_data temp_humid;
-Vector7i data;
+static Vector7i data;
 static const int MPU_addr = 0x68;
 /* ============================================== */
 
@@ -91,6 +101,28 @@ void send_temp_humid(){
 
 
 } // 온,습도 데이터 보내기
+
+void send_gyro_data(){
+    vector7i_union v7u;
+
+    v7u.first = data;
+    unsigned char front[8];
+    unsigned char back[8];
+
+    for(int i=0;i<8;i++){
+        front[i] = v7u.second[i];
+    }
+    for(int i=0;i<8;i++){
+        back[i] = v7u.second[i+8];
+    }
+    
+    CAN.sendMsgBuf(gyro_data_id_front,0,8,front);
+    delay(10);
+
+    CAN.sendMsgBuf(gyro_data_id_back,0,8,back);
+    delay(10);
+
+} // 자이로 센서값 데이터 보내기
 
 void CAN_INT(){
     unsigned char len = 0;
@@ -127,6 +159,40 @@ void initGyro () {
     Wire.endTransmission(true);
 }
 
+void initUltrasonic () {
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+}
+
+float readUltrasonic () {
+    float return_time;
+    float time_took;
+    
+    digitalWrite(TRIG_PIN, HIGH);
+    
+    delay(5);
+    
+    digitalWrite(TRIG_PIN, LOW);
+    
+    return_time = pulseIn(ECHO_PIN, HIGH);
+    time_took   = 340.0f * return_time / 10000.0f / 2.0f;
+    
+    return time_took;
+}
+
+void sendUltraData(){
+    distance_union du;
+    unsigned char data[8];
+
+    du.first = readUltrasonic();
+    for(int i=0;i<8;i++){
+        data[i] = du.second[i];
+    }
+    
+    CAN.sendMsgBuf(ultra_data_id,0,8,data);
+    delay(10);
+}
+
 void getData (Vector7i* data) {
     Wire.beginTransmission(MPU_addr);
     Wire.write(0x3B);
@@ -147,6 +213,7 @@ void getData (Vector7i* data) {
 void setup()
 {   
     initGyro();
+    initUltrasonic();
 	Serial.begin(115200);
     while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
         Serial.println("CAN BUS init Failed");
@@ -159,9 +226,10 @@ void setup()
 }
 
 
-
 void loop()
 {      
     getData(&data);
-	send_temp_humid();
+    send_temp_humid();
+    sendUltraData();
+    send_gyro_data();
 }
