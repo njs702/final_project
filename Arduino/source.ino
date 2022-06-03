@@ -90,6 +90,7 @@ void read_temp_humid(){
 void send_temp_humid(){
     read_temp_humid();
     temp_humid_union thu;
+
     thu.first = temp_humid;
     unsigned char stmp[8];
 
@@ -98,7 +99,6 @@ void send_temp_humid(){
     }
     CAN.sendMsgBuf(temp_humid_can_id,0,8,stmp);
     delay(10);
-
 
 } // 온,습도 데이터 보내기
 
@@ -112,6 +112,7 @@ void send_gyro_data(){
     for(int i=0;i<8;i++){
         front[i] = v7u.second[i];
     }
+
     for(int i=0;i<8;i++){
         back[i] = v7u.second[i+8];
     }
