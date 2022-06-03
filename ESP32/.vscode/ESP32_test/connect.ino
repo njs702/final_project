@@ -8,30 +8,31 @@
 
 #include "BluetoothSerial.h"
 
-#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
-#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#if !defined(CONFIG_BT_SPP_ENABLED)
+#error Serial Bluetooth not available or not enabled. It is only available for the ESP32 chip.
 #endif
 
 BluetoothSerial SerialBT;
 
 String MACadd = "AA:BB:CC:11:22:33";
-uint8_t address[6]  = {0x98, 0xDA, 0x40, 0x00, 0xF4, 0x3B};
+//uint8_t address[6] = {0x98, 0xD3, 0x32, 0x20, 0x87, 0xA0};
+uint8_t address[6]  = {0xAA, 0xBB, 0xCC, 0x11, 0x22, 0x33};
 //uint8_t address[6]  = {0x00, 0x1D, 0xA5, 0x02, 0xC3, 0x22};
-String name = "ZS-040test";
-char *pin = "1234"; //<- standard pin would be provided by default
+String name = "test";
+const char *pin = "1234"; //<- standard pin would be provided by default
 bool connected;
 
 void setup() {
   Serial.begin(115200);
-  SerialBT.setPin(pin); 
+  //SerialBT.setPin(pin);
   SerialBT.begin("ESP32test", true); 
-  SerialBT.setPin(pin);
+  //SerialBT.setPin(pin);
   Serial.println("The device started in master mode, make sure remote BT device is on!");
   
   // connect(address) is fast (upto 10 secs max), connect(name) is slow (upto 30 secs max) as it needs
   // to resolve name to address first, but it allows to connect to different devices with the same name.
   // Set CoreDebugLevel to Info to view devices bluetooth address and device names
-  //connected = SerialBT.connect(name);
+  connected = SerialBT.connect(name);
   connected = SerialBT.connect(address);
   
   if(connected) {
@@ -42,25 +43,19 @@ void setup() {
     }
   }
   // disconnect() may take upto 10 secs max
-  /*
   if (SerialBT.disconnect()) {
     Serial.println("Disconnected Succesfully!");
   }
   // this would reconnect to the name(will use address, if resolved) or address used with connect(name/address).
-  */
   SerialBT.connect();
 }
 
 void loop() {
-  if(SerialBT.available())            //송신
-  {
-    Serial.println(SerialBT.read());  
-  }
-
-  if(Serial.available()){
+  if (Serial.available()) {
     SerialBT.write(Serial.read());
-    //SerialBT.write('1');
   }
-  
+  if (SerialBT.available()) {
+    Serial.write(SerialBT.read());
+  }
   delay(20);
 }
