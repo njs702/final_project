@@ -49,6 +49,11 @@ union vector7i_union {
     Vector7i first;
     unsigned char second[16];
 };
+
+union distance_union{
+    float first;
+    unsigned char second[8];
+};
 /* ========================================================== */
 
 
@@ -59,6 +64,8 @@ static struct sockaddr_in server_addr, client_addr;
 
 static temp_humid_data temp_humid;
 static Vector7i v7i; // gyro data
+
+static float ultra_distance; // ultrasonic data
 
 static int can_socket; // CAN socket
 static struct sockaddr_can addr;
@@ -208,6 +215,15 @@ static void* can_communication(void* arg){
                 v7i.GyX = c.first.GyX;
                 v7i.GyY = c.first.GyY;
                 v7i.GyZ = c.first.GyZ;
+                break;
+                
+            case 0x14:
+                static union distance_union d;
+                for(int i=0;i<8;i++){
+                    d.second[i] = recieve_frame.data[i];
+                }
+                ultra_distance = d.first;
+                
                 break;
 
             default:

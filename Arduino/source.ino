@@ -8,6 +8,8 @@ static const int CAN_PIN = 10;
 static const int GYRO_PIN = 14;
 static const int DHT_11_PIN = 3;
 static const int INTERRUPT_PIN = 2;
+static constexpr int ECHO_PIN = 8;
+static constexpr int TRIG_PIN = 9;
 /* ================================================= */
 
 
@@ -16,6 +18,7 @@ static const int INTERRUPT_PIN = 2;
 unsigned long temp_humid_can_id = 0x11;
 unsigned long gyro_data_id_front = 0x12;
 unsigned long gyro_data_id_back = 0x13;
+unsigned long ultra_data_id = 0x14;
 /* ============================================= */
 
 
@@ -54,6 +57,11 @@ union vector7i_union {
 union vector7f_union {
     Vector7f first;
     unsigned char second[16];
+};
+
+union distance_union{
+    float first;
+    unsigned char second[8];
 };
 
 /* ========================================================== */
@@ -151,6 +159,40 @@ void initGyro () {
     Wire.endTransmission(true);
 }
 
+void initUltrasonic () {
+    pinMode(TRIG_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+}
+
+float readUltrasonic () {
+    float return_time;
+    float time_took;
+    
+    digitalWrite(TRIG_PIN, HIGH);
+    
+    delay(5);
+    
+    digitalWrite(TRIG_PIN, LOW);
+    
+    return_time = pulseIn(ECHO_PIN, HIGH);
+    time_took   = 340.0f * return_time / 10000.0f / 2.0f;
+    
+    return time_took;
+}
+
+void sendUltraData(){
+    distance_union du;
+    unsigned char data[8];
+
+    du.first = readUltrasonic();
+    for(int i=0;i<8;i++){
+        data[i] = du.second[i];
+    }
+    
+    CAN.sendMsgBuf(ultra_data_id,0,8,data);
+    delay(10);
+}
+
 void getData (Vector7i* data) {
     Wire.beginTransmission(MPU_addr);
     Wire.write(0x3B);
@@ -171,6 +213,7 @@ void getData (Vector7i* data) {
 void setup()
 {   
     initGyro();
+    initUltrasonic();
 	Serial.begin(115200);
     while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
         Serial.println("CAN BUS init Failed");
@@ -186,8 +229,7 @@ void setup()
 void loop()
 {      
     getData(&data);
-    Serial.println(data.AcX);
-    Serial.println(data.AcY);
     send_temp_humid();
+    sendUltraData();
     send_gyro_data();
 }
