@@ -45,20 +45,22 @@ void setup() {
 void loop() {
   val_0 = analogRead(AXIS_X);
   val_1 = analogRead(AXIS_Y);
-  
+  char msg = '0';
+ 
   if(analogRead(AXIS_X)==0&&analogRead(AXIS_Y)>1900){
-      Serial.println("0");//상
-      SerialBT.write("0");
+      msg='1';//상
   }
   if(analogRead(AXIS_X)>1900&&analogRead(AXIS_Y)==0){
-      Serial.println("1");//우
+      msg='2';//우
   }
   if(analogRead(AXIS_X)>1900&&analogRead(AXIS_Y)>4000){
-      Serial.println("2");//좌
+      msg='3';//좌
   }
   if(analogRead(AXIS_X)>4000&&analogRead(AXIS_Y)<1900){
-      Serial.println("3");//하
+      msg='4';//하
   }
- 
+  Serial.println(msg);
+  SerialBT.write(msg);
+  
   delay(200);
 }
