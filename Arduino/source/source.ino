@@ -5,12 +5,19 @@
 #include <SoftwareSerial.h> 
 
 /* ============== PIN NUMBER SETTINGS ============== */
-static const int CAN_PIN = 10;
-static const int GYRO_PIN = 14;
-static const int DHT_11_PIN = 3;
-static const int INTERRUPT_PIN = 2;
-static constexpr int ECHO_PIN = 8;
-static constexpr int TRIG_PIN = 9;
+static const int CAN_PIN = 10; // CAN 통신용 핀
+static const int GYRO_PIN = 14; // 자이로 센서 값 핀
+static const int DHT_11_PIN = 3; // 온,습도 센서 값 핀
+static const int INTERRUPT_PIN = 2; // 인터럽트 처리 핀
+static constexpr int ECHO_PIN = 8; // 초음파 센서 에코 핀
+static constexpr int TRIG_PIN = 9; // 초음파 센서 트리거 핀
+
+int RightMotor_E_pin = 4; // 오른쪽 모터의 Enable & PWM
+int LeftMotor_E_pin = 5;  // 왼쪽 모터의 Enable & PWM
+int RightMotor_1_pin = 6; // 오른쪽 모터 제어선 IN1
+int RightMotor_2_pin = 7; // 오른쪽 모터 제어선 IN2
+int LeftMotor_3_pin = 11; // 왼쪽 모터 제어선 IN3
+int LeftMotor_4_pin = 12; // 왼쪽 모터 제어선 IN4
 /* ================================================= */
 
 
@@ -78,7 +85,15 @@ union distance_union{
 static temp_humid_data temp_humid;
 static Vector7i data;
 static const int MPU_addr = 0x68;
-static char joystick_data='0';
+static char joystick_data = '0';
+
+//좌우 모터 속도 조절, 설정 가능 최대 속도 : 255
+int L_MotorSpeed = 185; // 왼쪽 모터 속도
+int R_MotorSpeed = 160; // 오른쪽 모터 속도
+
+int R_Motor = 0; // 오른쪽 모터 HIGH & LOW 판별 변수
+int L_Motor = 0; // 왼쪽 모터 HIGH & LOW 판별 변수
+int mode = 0; // 블루투스 데이터에 따른 모드 설정 변수
 /* ============================================== */
 
 
