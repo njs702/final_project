@@ -27,18 +27,6 @@
             ],
             "intelliSenseMode": "gcc-x64",
             "includePath": [
-<<<<<<< HEAD
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino",
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\mega",
-                "C:\\Users\\USER\\OneDrive\\문서\\Arduino\\libraries\\DHT_Library",
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\SPI\\src",
-                "C:\\Users\\USER\\OneDrive\\문서\\Arduino\\libraries\\MCP2515_lib-master",
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\Wire\\src",
-                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\SoftwareSerial\\src",
-                "c:\\program files (x86)\\arduino\\hardware\\tools\\avr\\lib\\gcc\\avr\\7.3.0\\include",
-                "c:\\program files (x86)\\arduino\\hardware\\tools\\avr\\lib\\gcc\\avr\\7.3.0\\include-fixed",
-                "c:\\program files (x86)\\arduino\\hardware\\tools\\avr\\avr\\include"
-=======
                 "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.2\\tools\\sdk\\esp32\\include\\config",
                 "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.2\\tools\\sdk\\esp32\\include\\newlib\\platform_include",
                 "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.2\\tools\\sdk\\esp32\\include\\freertos\\include",
@@ -218,7 +206,6 @@
                 "c:\\users\\user\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2\\lib\\gcc\\xtensa-esp32-elf\\8.4.0\\include-fixed",
                 "c:\\users\\user\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2\\xtensa-esp32-elf\\sys-include",
                 "c:\\users\\user\\appdata\\local\\arduino15\\packages\\esp32\\tools\\xtensa-esp32-elf-gcc\\gcc8_4_0-esp-2021r2\\xtensa-esp32-elf\\include"
->>>>>>> feature/nunchuk_control
             ],
             "forcedInclude": [
                 "C:\\Users\\USER\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.2\\cores\\esp32\\Arduino.h"
@@ -236,12 +223,6 @@
                 "_POSIX_READER_WRITER_LOCKS",
                 "F_CPU=240000000L",
                 "ARDUINO=10819",
-<<<<<<< HEAD
-                "ARDUINO_AVR_MEGA2560",
-                "ARDUINO_ARCH_AVR",
-                "__DBL_MIN_EXP__=(-125)",
-                "__HQ_FBIT__=15",
-=======
                 "ARDUINO_ESP32_DEV",
                 "ARDUINO_ARCH_ESP32",
                 "ARDUINO_BOARD=\"ESP32_DEV\"",
@@ -254,7 +235,6 @@
                 "ARDUINO_USB_CDC_ON_BOOT=0",
                 "__DBL_MIN_EXP__=(-1021)",
                 "__FLT32X_MAX_EXP__=1024",
->>>>>>> feature/nunchuk_control
                 "__cpp_attributes=200809",
                 "__UINT_LEAST16_MAX__=0xffff",
                 "__ATOMIC_ACQUIRE=2",
