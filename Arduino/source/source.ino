@@ -18,6 +18,13 @@ int RightMotor_1_pin = 6; // 오른쪽 모터 제어선 IN1
 int RightMotor_2_pin = 7; // 오른쪽 모터 제어선 IN2
 int LeftMotor_3_pin = 11; // 왼쪽 모터 제어선 IN3
 int LeftMotor_4_pin = 12; // 왼쪽 모터 제어선 IN4
+
+/* int RightMotor_E_pin = 5;      // 오른쪽 모터의 Enable & PWM
+int RightMotor_1_pin = 8;      // 오른쪽 모터 제어선 IN1
+int RightMotor_2_pin = 9;     // 오른쪽 모터 제어선 IN2
+int LeftMotor_3_pin = 10;      // 왼쪽 모터 제어선 IN3
+int LeftMotor_4_pin = 11;      // 왼쪽 모터 제어선 IN4
+int LeftMotor_E_pin = 6;      // 왼쪽 모터의 Enable & PWM */
 /* ================================================= */
 
 
@@ -85,11 +92,11 @@ union distance_union{
 static temp_humid_data temp_humid;
 static Vector7i data;
 static const int MPU_addr = 0x68;
-static char joystick_data = '0';
+static char bluetooth_data = '0';
 
 //좌우 모터 속도 조절, 설정 가능 최대 속도 : 255
-int L_MotorSpeed = 185; // 왼쪽 모터 속도
-int R_MotorSpeed = 160; // 오른쪽 모터 속도
+int L_MotorSpeed = 100; // 왼쪽 모터 속도
+int R_MotorSpeed = 100; // 오른쪽 모터 속도
 
 int R_Motor = 0; // 오른쪽 모터 HIGH & LOW 판별 변수
 int L_Motor = 0; // 왼쪽 모터 HIGH & LOW 판별 변수
@@ -227,39 +234,147 @@ void getData (Vector7i* data) {
     data->GyZ = Wire.read() << 8 | Wire.read();
 }
 
-void joystick_read(){
-    if(BTSerial.available()){
-        joystick_data=BTSerial.read();
-    }
-    switch (joystick_data)
+void control_smartCar(char data){
+    switch (data)
     {
-    case '0':
-        break;
-    case '1':
-        break;
-    case '2':
-        break;
-    case '3':
-        break;
-    case '4':
-        break;    
+    case 'g':
+        R_Motor = HIGH; L_Motor = HIGH; mode = 0;
+        break; // 전진
+    
+    case 'r':
+        mode = 1;
+        break; // 우회전
+    
+    case 'l':
+        mode = 2;
+        break; // 좌회전
+
+    case 'b':
+        R_Motor = LOW; L_Motor = LOW; mode = 0;
+        break; // 후진
+
+    case 's':
+        R_Motor = HIGH; L_Motor = HIGH; mode = 3;
+        break; // 정지
+
+    case 'q':
+        mode = 4;
+        break; // 제자리 좌회전
+    
+    case 'W':
+        mode = 5;
+        break; // 제자리 우회전
+
     default:
         break;
     }
 }
 
+void motor_role(int R_motor, int L_motor){
+    digitalWrite(RightMotor_1_pin, R_motor);
+    digitalWrite(RightMotor_2_pin, !R_motor);
+    digitalWrite(LeftMotor_3_pin, L_motor);
+    digitalWrite(LeftMotor_4_pin, !L_motor);
+    
+    analogWrite(RightMotor_E_pin, R_MotorSpeed);                                           // 우측 모터 속도값
+    analogWrite(LeftMotor_E_pin, L_MotorSpeed);                                         // 좌측 모터 속도값  
+}
+
+void Right_role(int R_motor, int L_motor){
+    digitalWrite(RightMotor_1_pin, R_motor);
+    digitalWrite(RightMotor_2_pin, !R_motor);
+    digitalWrite(LeftMotor_3_pin, L_motor);
+    digitalWrite(LeftMotor_4_pin, !L_motor);
+    
+    analogWrite(RightMotor_E_pin, max(R_MotorSpeed*0.4,90));                                            // 우측 모터 속도값
+    analogWrite(LeftMotor_E_pin, 255);                                            // 좌측 모터 속도값
+}
+
+void Left_role(int R_motor, int L_motor){
+    digitalWrite(RightMotor_1_pin, R_motor);
+    digitalWrite(RightMotor_2_pin, !R_motor);
+    digitalWrite(LeftMotor_3_pin, L_motor);
+    digitalWrite(LeftMotor_4_pin, !L_motor);
+    
+    analogWrite(RightMotor_E_pin, 255);                        // 우측 모터 속도값
+    analogWrite(LeftMotor_E_pin, max(L_MotorSpeed*0.4,90));                               // 좌측 모터 속도값   
+}
+
+void left_rotation(int R_motor, int L_motor){
+    digitalWrite(RightMotor_1_pin, HIGH);
+    digitalWrite(RightMotor_2_pin, LOW);
+    digitalWrite(LeftMotor_3_pin, LOW);
+    digitalWrite(LeftMotor_4_pin, HIGH);
+    
+    analogWrite(RightMotor_E_pin, R_MotorSpeed);                         // 우측 모터 속도값
+    analogWrite(LeftMotor_E_pin, L_MotorSpeed);                               // 좌측 모터 속도값
+}
+
+void right_rotation(int R_motor, int L_motor){
+    digitalWrite(RightMotor_1_pin, LOW);
+    digitalWrite(RightMotor_2_pin, HIGH);
+    digitalWrite(LeftMotor_3_pin, HIGH);
+    digitalWrite(LeftMotor_4_pin, LOW);
+    
+    analogWrite(RightMotor_E_pin, R_MotorSpeed);                         // 우측 모터 속도값
+    analogWrite(LeftMotor_E_pin, L_MotorSpeed);                               // 좌측 모터 속도값
+}
+
+void joystick_read(){
+    if(BTSerial.available()){
+        bluetooth_data = BTSerial.read();
+
+        control_smartCar(bluetooth_data);
+        
+        // mode에 따른 자동차의 동작 제어 분기문
+        switch (mode)
+        {
+        case 0:
+            motor_role(R_Motor, L_Motor);
+            break;
+        case 1:
+            Right_role(R_Motor, L_Motor);
+            break;
+        case 2:
+            Left_role(R_Motor, L_Motor);
+            break;
+        case 4:
+            left_rotation(R_Motor, L_Motor);
+            break;
+        case 5:
+            right_rotation(R_Motor, L_Motor);
+            break;    
+        default:
+            analogWrite(RightMotor_E_pin, 0);
+            analogWrite(LeftMotor_E_pin, 0);
+            break;
+        }
+
+    }
+    
+}
+
+void initMotor(){
+    pinMode(RightMotor_E_pin, OUTPUT);                                  // 출력모드로 설정
+    pinMode(RightMotor_1_pin, OUTPUT);
+    pinMode(RightMotor_2_pin, OUTPUT);
+    pinMode(LeftMotor_3_pin, OUTPUT);
+    pinMode(LeftMotor_4_pin, OUTPUT);
+    pinMode(LeftMotor_E_pin, OUTPUT);
+}
 /* ============================================== */
 
 void setup()
 {   
-    initGyro();
-    initUltrasonic();
+    initMotor();
+    //initGyro();
+    //initUltrasonic();
 	Serial.begin(115200);
     BTSerial.begin(115200);  
-    while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
+    /* while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
         Serial.println("CAN BUS init Failed");
         delay(100);
-    }
+    } */
     Serial.println("CAN BUS init Success");
     // Run can_int function when interrupt occurs
     attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN),CAN_INT,FALLING);
@@ -268,9 +383,9 @@ void setup()
 
 void loop()
 {      
-    getData(&data);
+    /* getData(&data);
     send_temp_humid();
     sendUltraData();
     send_gyro_data();
-    joystick_read();
+    joystick_read(); */
 }
