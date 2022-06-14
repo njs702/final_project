@@ -4,6 +4,18 @@
 #include <Wire.h>
 #include <SoftwareSerial.h> 
 
+#define __MEGA2560__ 1                   //0: Uno, 1: Mega 2560
+
+#if __MEGA2560__
+#define BTSerial Serial3
+#else
+int blueTx=2;   
+int blueRx=3;   
+SoftwareSerial mySerial(blueTx, blueRx); 
+#endif
+
+#define BAUDRATE 115200                 //select 9600 or 115200 w.r.t module
+
 /* ============== PIN NUMBER SETTINGS ============== */
 static const int CAN_PIN = 10; // CAN 통신용 핀
 static const int GYRO_PIN = 14; // 자이로 센서 값 핀
@@ -12,19 +24,15 @@ static const int INTERRUPT_PIN = 2; // 인터럽트 처리 핀
 static constexpr int ECHO_PIN = 8; // 초음파 센서 에코 핀
 static constexpr int TRIG_PIN = 9; // 초음파 센서 트리거 핀
 
-int RightMotor_E_pin = 4; // 오른쪽 모터의 Enable & PWM
-int LeftMotor_E_pin = 5;  // 왼쪽 모터의 Enable & PWM
-int RightMotor_1_pin = 6; // 오른쪽 모터 제어선 IN1
-int RightMotor_2_pin = 7; // 오른쪽 모터 제어선 IN2
-int LeftMotor_3_pin = 11; // 왼쪽 모터 제어선 IN3
-int LeftMotor_4_pin = 12; // 왼쪽 모터 제어선 IN4
+static const int RightMotor_E_pin = 4; // 오른쪽 모터의 Enable & PWM
+static const int LeftMotor_E_pin = 5;  // 왼쪽 모터의 Enable & PWM
+static const int RightMotor_1_pin = 6; // 오른쪽 모터 제어선 IN1
+static const int RightMotor_2_pin = 7; // 오른쪽 모터 제어선 IN2
+static const int LeftMotor_3_pin = 11; // 왼쪽 모터 제어선 IN3
+static const int LeftMotor_4_pin = 12; // 왼쪽 모터 제어선 IN4
 
-/* int RightMotor_E_pin = 5;      // 오른쪽 모터의 Enable & PWM
-int RightMotor_1_pin = 8;      // 오른쪽 모터 제어선 IN1
-int RightMotor_2_pin = 9;     // 오른쪽 모터 제어선 IN2
-int LeftMotor_3_pin = 10;      // 왼쪽 모터 제어선 IN3
-int LeftMotor_4_pin = 11;      // 왼쪽 모터 제어선 IN4
-int LeftMotor_E_pin = 6;      // 왼쪽 모터의 Enable & PWM */
+static const int TX_PIN = 18;
+static const int RX_PIN = 19;
 /* ================================================= */
 
 
@@ -41,7 +49,7 @@ unsigned long ultra_data_id = 0x14;
 /* ============== GLOBAL LIBRARY VARIABLES ============== */
 dht DHT; 
 MCP_CAN CAN(CAN_PIN);
-SoftwareSerial BTSerial(2, 3); // HC-06모듈 RX=3, TX=2
+//SoftwareSerial BTSerial(TX_PIN, RX_PIN);
 /* ====================================================== */
 
 
@@ -84,6 +92,7 @@ union distance_union{
 
 
 /* ============== GLOBAL classes ============== */
+
 
 /* ============================================== */
 
@@ -286,8 +295,8 @@ void Right_role(int R_motor, int L_motor){
     digitalWrite(LeftMotor_3_pin, L_motor);
     digitalWrite(LeftMotor_4_pin, !L_motor);
     
-    analogWrite(RightMotor_E_pin, max(R_MotorSpeed*0.4,90));                                            // 우측 모터 속도값
-    analogWrite(LeftMotor_E_pin, 255);                                            // 좌측 모터 속도값
+    analogWrite(RightMotor_E_pin, max(R_MotorSpeed*0.4,90));// 우측 모터 속도값
+    analogWrite(LeftMotor_E_pin, 255);// 좌측 모터 속도값
 }
 
 void Left_role(int R_motor, int L_motor){
@@ -321,9 +330,10 @@ void right_rotation(int R_motor, int L_motor){
 }
 
 void joystick_read(){
+    
     if(BTSerial.available()){
         bluetooth_data = BTSerial.read();
-
+        Serial.println(bluetooth_data);
         control_smartCar(bluetooth_data);
         
         // mode에 따른 자동차의 동작 제어 분기문
@@ -355,7 +365,7 @@ void joystick_read(){
 }
 
 void initMotor(){
-    pinMode(RightMotor_E_pin, OUTPUT);                                  // 출력모드로 설정
+    pinMode(RightMotor_E_pin, OUTPUT);// 출력모드로 설정
     pinMode(RightMotor_1_pin, OUTPUT);
     pinMode(RightMotor_2_pin, OUTPUT);
     pinMode(LeftMotor_3_pin, OUTPUT);
@@ -369,8 +379,9 @@ void setup()
     initMotor();
     //initGyro();
     //initUltrasonic();
-	Serial.begin(115200);
-    BTSerial.begin(115200);  
+	Serial.begin(BAUDRATE);
+    BTSerial.begin(BAUDRATE);
+    Serial.println("BTserial init Success");  
     /* while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
         Serial.println("CAN BUS init Failed");
         delay(100);
@@ -386,6 +397,6 @@ void loop()
     /* getData(&data);
     send_temp_humid();
     sendUltraData();
-    send_gyro_data();
-    joystick_read(); */
+    send_gyro_data(); */
+    joystick_read();
 }

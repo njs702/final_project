@@ -97,7 +97,9 @@ void loop() {
     Serial.print("bluetooth_message: ");
     Serial.println(bluetooth_message);
     SerialBT.write(bluetooth_message);
-
-
+    /* if(SerialBT.available()){
+      
+    } */
+    
     delay(10);
 }
