@@ -22,6 +22,7 @@ uint8_t address[6]  = {0x98, 0xDA, 0x40, 0x00, 0xF4, 0x3B};
 String name = "junseok";
 char *pin = "1234"; 
 bool connected;
+char bluetooth_message = 'm';
 
 // ==================== FUNCTIONS ======================
 void initSerialBT(){
@@ -48,6 +49,10 @@ void initNunchuk(){
     }
     wii_i2c_request_state();
 }
+
+void sendMsg(){
+
+}
 // ====================================================
 
 void setup() {
@@ -67,18 +72,32 @@ void loop() {
     } else {
       wii_i2c_nunchuk_state state;
       wii_i2c_decode_nunchuk(data, &state);
-      Serial.printf("Stick position: (%d,%d)\n", state.x, state.y);
+      /* Serial.printf("Stick position: (%d,%d)\n", state.x, state.y);
       Serial.printf("C button is %s\n", (state.c) ? "pressed" : "not pressed");
-      Serial.printf("Z button is %s\n", (state.z) ? "pressed" : "not pressed");
-    }
-    delay(1000);
+      Serial.printf("Z button is %s\n", (state.z) ? "pressed" : "not pressed"); */
+      
+      if(state.x == -1 && state.y == 0){
+        bluetooth_message = 's'; // 멈춘 상태
+      }
+      else if((state.x > -5 && state.x < 5) && (state.y > 110)){
+        bluetooth_message = 'g'; // 전진
+      }
+      else if((state.x < -110) && (state.y > -5 && state.y < 5)){
+        bluetooth_message = 'l'; // 좌회전
+      }
+      else if((state.x > -5 && state.x < 5) && (state.y < -110)){
+        bluetooth_message = 'b'; // 후진
+      }
+      else if((state.x > 110) && (state.y > -5 && state.y < 5)){
+        bluetooth_message = 'r'; // 우회전
+      }
 
-    if(SerialBT.available())            //송신
-    {
-      Serial.println(SerialBT.read());  
     }
-    if(Serial.available()){
-      SerialBT.write(Serial.read());
-    }
-    delay(20);
+    delay(10);
+    Serial.print("bluetooth_message: ");
+    Serial.println(bluetooth_message);
+    SerialBT.write(bluetooth_message);
+
+
+    delay(10);
 }
