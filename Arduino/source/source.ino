@@ -17,9 +17,9 @@ SoftwareSerial mySerial(blueTx, blueRx);
 #define BAUDRATE 115200                 //select 9600 or 115200 w.r.t module
 
 /* ============== PIN NUMBER SETTINGS ============== */
-static const int CAN_PIN = 10; // CAN 통신용 핀
+static const int CAN_PIN = 53; // CAN 통신용 핀(CS, MEGA:53 & UNO:10)
 static const int GYRO_PIN = 14; // 자이로 센서 값 핀
-static const int DHT_11_PIN = 3; // 온,습도 센서 값 핀
+static const int DHT_11_PIN = 13; // 온,습도 센서 값 핀
 static const int INTERRUPT_PIN = 2; // 인터럽트 처리 핀
 static constexpr int ECHO_PIN = 8; // 초음파 센서 에코 핀
 static constexpr int TRIG_PIN = 9; // 초음파 센서 트리거 핀
@@ -119,6 +119,7 @@ void read_temp_humid(){
     DHT.read11(DHT_11_PIN);
     temp_humid.humid = DHT.humidity;
     temp_humid.temp = DHT.temperature;
+    delay(5);
 } // 온,습도 데이터 읽어오기
 
 void send_temp_humid(){
@@ -377,15 +378,15 @@ void initMotor(){
 void setup()
 {   
     initMotor();
-    //initGyro();
-    //initUltrasonic();
+    initGyro();
+    initUltrasonic();
 	Serial.begin(BAUDRATE);
     BTSerial.begin(BAUDRATE);
     Serial.println("BTserial init Success");  
-    /* while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
+    while(CAN_OK != CAN.begin(CAN_500KBPS,MCP_8MHz)){
         Serial.println("CAN BUS init Failed");
         delay(100);
-    } */
+    }
     Serial.println("CAN BUS init Success");
     // Run can_int function when interrupt occurs
     attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN),CAN_INT,FALLING);
@@ -394,9 +395,9 @@ void setup()
 
 void loop()
 {      
-    /* getData(&data);
-    send_temp_humid();
+    getData(&data);
     sendUltraData();
-    send_gyro_data(); */
-    joystick_read();
+    send_gyro_data();
+    send_temp_humid();
+    //joystick_read();
 }
