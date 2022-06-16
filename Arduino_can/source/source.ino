@@ -20,14 +20,24 @@ static const int RightMotor_1_pin = 6; // 오른쪽 모터 제어선 IN1
 static const int RightMotor_2_pin = 7; // 오른쪽 모터 제어선 IN2
 static const int LeftMotor_3_pin = 11; // 왼쪽 모터 제어선 IN3
 static const int LeftMotor_4_pin = 12; // 왼쪽 모터 제어선 IN4
+
+/* static const int RightMotor_E_pin = 0; // 오른쪽 모터의 Enable & PWM
+static const int LeftMotor_E_pin = 1;  // 왼쪽 모터의 Enable & PWM
+static const int RightMotor_1_pin = 4; // 오른쪽 모터 제어선 IN1
+static const int RightMotor_2_pin = 5; // 오른쪽 모터 제어선 IN2
+static const int LeftMotor_3_pin = 6; // 왼쪽 모터 제어선 IN3
+static const int LeftMotor_4_pin = 7; // 왼쪽 모터 제어선 IN4 */
+
+static const int led_yellow_pin = 8;
+static const int led_red_pin = 9;
 /* ================================================= */
 
 /* ============== GLOBAL variables ============== */
 static char bluetooth_data = '0';
 
 //좌우 모터 속도 조절, 설정 가능 최대 속도 : 255
-int L_MotorSpeed = 100; // 왼쪽 모터 속도
-int R_MotorSpeed = 100; // 오른쪽 모터 속도
+int L_MotorSpeed = 200; // 왼쪽 모터 속도
+int R_MotorSpeed = 180; // 오른쪽 모터 속도
 
 int R_Motor = 0; // 오른쪽 모터 HIGH & LOW 판별 변수
 int L_Motor = 0; // 왼쪽 모터 HIGH & LOW 판별 변수
@@ -45,11 +55,19 @@ void initMotor(){
     Serial.println("Motor init Success"); 
 }
 
+void initLed(){
+    pinMode(led_yellow_pin,OUTPUT);
+    pinMode(led_red_pin,OUTPUT);
+}
+
 void control_smartCar(char data){
+    digitalWrite(led_red_pin,LOW);
+    digitalWrite(led_yellow_pin,LOW);
     switch (data)
     {
     case 'g':
         R_Motor = HIGH; L_Motor = HIGH; mode = 0;
+        digitalWrite(led_yellow_pin,HIGH);
         break; // 전진
     
     case 'r':
@@ -66,6 +84,7 @@ void control_smartCar(char data){
 
     case 's':
         R_Motor = HIGH; L_Motor = HIGH; mode = 3;
+        digitalWrite(led_yellow_pin,LOW);
         break; // 정지
 
     case 'q':
@@ -75,8 +94,14 @@ void control_smartCar(char data){
     case 'W':
         mode = 5;
         break; // 제자리 우회전
+    
+    case 'k':
+        R_Motor = HIGH; L_Motor = HIGH; mode = 3;
+        digitalWrite(led_red_pin,HIGH);
+        break;
 
     default:
+        //mode = 6;
         break;
     }
 }
@@ -86,9 +111,9 @@ void motor_role(int R_motor, int L_motor){
     digitalWrite(RightMotor_2_pin, !R_motor);
     digitalWrite(LeftMotor_3_pin, L_motor);
     digitalWrite(LeftMotor_4_pin, !L_motor);
-    
-    analogWrite(RightMotor_E_pin, R_MotorSpeed);                                           // 우측 모터 속도값
-    analogWrite(LeftMotor_E_pin, L_MotorSpeed);                                         // 좌측 모터 속도값  
+
+    analogWrite(RightMotor_E_pin, R_MotorSpeed);// 우측 모터 속도값
+    analogWrite(LeftMotor_E_pin, L_MotorSpeed);// 좌측 모터 속도값  
 }
 
 void Right_role(int R_motor, int L_motor){
@@ -131,6 +156,18 @@ void right_rotation(int R_motor, int L_motor){
     analogWrite(LeftMotor_E_pin, L_MotorSpeed);                               // 좌측 모터 속도값
 }
 
+void temp_test(int R_motor, int L_motor){
+    digitalWrite(RightMotor_1_pin, R_motor);
+    digitalWrite(RightMotor_2_pin, !R_motor);
+    digitalWrite(LeftMotor_3_pin, L_motor);
+    digitalWrite(LeftMotor_4_pin, !L_motor);
+
+    for(int i = R_MotorSpeed, j = L_MotorSpeed; i < 60, j < 60; i -= 10, j -= 10){
+        analogWrite(RightMotor_E_pin,i);
+        analogWrite(LeftMotor_E_pin,j);
+    }
+}
+
 void joystick_read(){
     
     if(mySerial.available()){
@@ -143,6 +180,7 @@ void joystick_read(){
         {
         case 0:
             motor_role(R_Motor, L_Motor);
+            
             break;
         case 1:
             Right_role(R_Motor, L_Motor);
@@ -150,15 +188,23 @@ void joystick_read(){
         case 2:
             Left_role(R_Motor, L_Motor);
             break;
+        /* case 3:
+            analogWrite(RightMotor_E_pin, 0);
+            analogWrite(LeftMotor_E_pin, 0);
+            break; */
         case 4:
             left_rotation(R_Motor, L_Motor);
             break;
         case 5:
             right_rotation(R_Motor, L_Motor);
+            break;
+        case 6:
+            temp_test(R_Motor,L_Motor);
             break;    
         default:
             analogWrite(RightMotor_E_pin, 0);
             analogWrite(LeftMotor_E_pin, 0);
+            //motor_role(R_Motor, L_Motor);
             break;
         }
 
@@ -170,6 +216,7 @@ void joystick_read(){
 void setup(){
     Serial.begin(BAUDRATE);
     initMotor();
+    initLed();
     mySerial.begin(BAUDRATE);
     Serial.println("BTserial init Success");  
 }
