@@ -80,16 +80,37 @@ void loop() {
         bluetooth_message = 's'; // 멈춘 상태
       }
       else if((state.x > -5 && state.x < 5) && (state.y > 110)){
-        bluetooth_message = 'g'; // 전진
+        if(!state.z){
+          bluetooth_message = 'g'; // 전진
+        }
+        else{
+          bluetooth_message = 'k'; // 전진 도중 브레이크 누르기
+        }
       }
       else if((state.x < -110) && (state.y > -5 && state.y < 5)){
-        bluetooth_message = 'l'; // 좌회전
+        if(!state.z){
+          bluetooth_message = 'l'; // 좌회전
+        }
+        else{
+          bluetooth_message = 'k'; // 좌회전 도중 브레이크 누르기
+        }
+        
       }
       else if((state.x > -5 && state.x < 5) && (state.y < -110)){
-        bluetooth_message = 'b'; // 후진
+        if(!state.z){
+          bluetooth_message = 'b'; // 후진
+        }
+        else{
+          bluetooth_message = 'k'; // 후진 도중 브레이크 누르기
+        }
       }
       else if((state.x > 110) && (state.y > -5 && state.y < 5)){
-        bluetooth_message = 'r'; // 우회전
+        if(!state.z){
+          bluetooth_message = 'r';
+        }
+        else{
+          bluetooth_message = 'k'; // 우회전 도중 브레이크 누르기
+        }
       }
 
     }
@@ -97,7 +118,9 @@ void loop() {
     Serial.print("bluetooth_message: ");
     Serial.println(bluetooth_message);
     SerialBT.write(bluetooth_message);
-
-
+    /* if(SerialBT.available()){
+      
+    } */
+    
     delay(10);
 }
