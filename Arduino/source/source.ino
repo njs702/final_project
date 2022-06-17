@@ -26,6 +26,7 @@ static constexpr int TRIG_PIN = 9; // 초음파 센서 트리거 핀
 
 static const int RED_LED1_PIN = 35;
 static const int LIGHT_BUTTON_PIN = 22;
+static const int JODO_PIN = A7;
 
 static const int TX_PIN = 18;
 static const int RX_PIN = 19;
@@ -41,6 +42,9 @@ unsigned long ultra_data_id = 0x14;
 
 unsigned long light_on_id = 0x15;
 unsigned long light_off_id = 0x16;
+
+unsigned long light_on_auto_id = 0x17;
+unsigned long light_off_auto_id = 0x18;
 /* ============================================= */
 
 
@@ -102,7 +106,8 @@ static Vector7i data;
 static const int MPU_addr = 0x68;
 static char bluetooth_data = '0';
 
-static boolean light_flag = false;
+boolean light_flag = false;
+boolean light_flag_auto = false;
 
 //좌우 모터 속도 조절, 설정 가능 최대 속도 : 255
 int L_MotorSpeed = 100; // 왼쪽 모터 속도
@@ -251,14 +256,65 @@ void initButton(){
 
 void turn_on_light(){
     // 버튼 눌리면 CAN BUS로 불 켜라는 신호 전달
+    CAN.sendMsgBuf(light_on_id,0,0,NULL);
+    Serial.println("turn on can message!");
+    delay(300);
 }
 
 void turn_off_light(){
     // 버튼 눌리면 CAN BUS로 불 끄라는 신호 전달
+    CAN.sendMsgBuf(light_off_id,0,0,NULL);
+    Serial.println("turn off can message!");
+    delay(300);
 }
 
 void send_light_info(){
-    
+    // 만약 불이 켜져있지 않은 상태에서 버튼이 눌리면 turn on 신호 보내기
+    if(digitalRead(LIGHT_BUTTON_PIN) == HIGH && light_flag == false){
+        turn_on_light();
+        light_flag = true;
+    }
+    // 만약 불이 켜져있는 상태에서 버튼이 눌리면 turn off 신호 보내기
+    if(digitalRead(LIGHT_BUTTON_PIN) == HIGH && light_flag == true){
+        turn_off_light();
+        light_flag = false;
+    }
+}
+
+int read_jodo(){
+    int light = analogRead(JODO_PIN);
+    //Serial.println(light);
+    return light;
+}
+
+void turn_on_light_auto(){
+    // 조도센서 값 50 이하면 CAN BUS로 불 켜라는 신호 전달
+    CAN.sendMsgBuf(light_on_auto_id,0,0,NULL);
+    Serial.println("turn on auto can message!");
+    delay(10);
+}
+
+void turn_off_light_auto(){
+    // 조도센서 값 50 초과면 CAN BUS로 불 끄라는 신호 전달
+    CAN.sendMsgBuf(light_off_auto_id,0,0,NULL);
+    Serial.println("turn off auto can message!");
+    delay(10);
+}
+
+void send_light_info_auto(){
+    int light = read_jodo();
+    Serial.print("light: ");
+    Serial.println(light);
+    Serial.print("light_flag: ");
+    Serial.println(light_flag_auto);
+    if(light < 50 && light_flag_auto == false){
+        turn_on_light_auto();
+        light_flag_auto = true;
+    }
+    if(light >= 50 && light_flag_auto == true){
+        turn_off_light_auto();
+        light_flag_auto = false;
+    }
 }
 /* ============================================== */
 
@@ -286,4 +342,6 @@ void loop()
     sendUltraData();
     send_gyro_data();
     send_temp_humid();
+    send_light_info();
+    send_light_info_auto();
 }
