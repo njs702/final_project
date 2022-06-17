@@ -25,6 +25,7 @@ static constexpr int ECHO_PIN = 8; // 초음파 센서 에코 핀
 static constexpr int TRIG_PIN = 9; // 초음파 센서 트리거 핀
 
 static const int RED_LED1_PIN = 35;
+static const int LIGHT_BUTTON_PIN = 22;
 
 static const int TX_PIN = 18;
 static const int RX_PIN = 19;
@@ -37,6 +38,9 @@ unsigned long temp_humid_can_id = 0x11;
 unsigned long gyro_data_id_front = 0x12;
 unsigned long gyro_data_id_back = 0x13;
 unsigned long ultra_data_id = 0x14;
+
+unsigned long light_on_id = 0x15;
+unsigned long light_off_id = 0x16;
 /* ============================================= */
 
 
@@ -97,6 +101,8 @@ static temp_humid_data temp_humid;
 static Vector7i data;
 static const int MPU_addr = 0x68;
 static char bluetooth_data = '0';
+
+static boolean light_flag = false;
 
 //좌우 모터 속도 조절, 설정 가능 최대 속도 : 255
 int L_MotorSpeed = 100; // 왼쪽 모터 속도
@@ -239,11 +245,26 @@ void getData (Vector7i* data) {
     data->GyZ = Wire.read() << 8 | Wire.read();
 }
 
+void initButton(){
+    pinMode(LIGHT_BUTTON_PIN,INPUT);
+}
+
+void turn_on_light(){
+    // 버튼 눌리면 CAN BUS로 불 켜라는 신호 전달
+}
+
+void turn_off_light(){
+    // 버튼 눌리면 CAN BUS로 불 끄라는 신호 전달
+}
+
+void send_light_info(){
+    
+}
 /* ============================================== */
 
 void setup()
 {   
-    
+    initButton();
     initGyro();
     initUltrasonic();
 	Serial.begin(BAUDRATE);
