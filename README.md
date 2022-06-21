@@ -144,3 +144,25 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * 특정 trigger가 발생하면, MQTT 통신을 통해 현재 GPS 값을 RPi로 전달한다
 * RPi에서는 받은 GPS 정보를 기반으로 역지오코딩을 통해 위도,경도를 위치 정보로 교환해 사고 위치를 알려준다.
 
+### 4.4 Bluetooth 통신 기반 원격 제어(with ESP32 & Wii remote)
+**GOALS**
+
+1. 서로 다른 장치 간 연계 시스템 구축하기
+2. Bluetooth 통신을 활용한 데이터 전송
+3. 서로 다른 종류의 단말 간 데이터 교환(아두이노, ESP32)
+
+<p align="center"><img src="./imgs/4.4_architecture.PNG"></p>
+
+<p align="center">그림12 - 구조도</p>
+
+<p align="center"><img src="./imgs/4.4_implementation.PNG"></p>
+
+<p align="center">그림13 - Wii remote joystick을 활용한 무선 원격 조종</p>
+
+**구현 원리**
+
+* 2대의 디바이스 - Wii remote 컨트롤 단말(ESP32), 모터 드라이버 모듈 제어 단말(Arduino)
+* ESP32에서는 Wii remote nunchuk의 조이스틱 데이터를 수집한다.
+* 조이스틱의 방향에 따라 데이터를 분기해 bluetooth로 전달한다.
+* 아두이노에서는 해당 데이터를 받고 받은 신호에 따라 모터 드라이버 모듈을 제어한다.
+
