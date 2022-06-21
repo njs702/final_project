@@ -205,3 +205,32 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 ## 6. 구현 결과 & 결론
 
 ### 6.1 구현 결과
+
+<p align="center"><img src="./imgs/result_1.PNG"></p>
+
+<p align="center">그림15 - 구현결과 1</p>
+
+<p align="center"><img src="./imgs/result_2.PNG"></p>
+
+<p align="center">그림15 - 구현결과 2</p>
+
+<hr/>
+
+### 6.2 결론
+
+**POST MORTEM - 프로젝트 회고**
+
+* 잘된 일
+1. 전체적인 프로젝트 설계 및 구현
+2. 추가 모듈 적용 및 구현(MCP2515, Wii remote ...)
+3. 아이디어 컨셉에 맞는 기능 구현
+
+* 잘 못된 일
+1. 개인 능력 미달로 인한 아이디어의 확장 제한
+2. 일정 관리 미흡
+3. 프로젝트 결과물 외적인 디자인
+
+* 개선책 & 발전 방향
+1. 추가적인 다양한 모듈을 사용해 제어 연계 시스템 추가
+2. 수집된 데이터를 가공하여 사용할 수 있는 능력
+3. 데이터 전송 속도 성능 개선
