@@ -121,3 +121,26 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * MEGA에서는 지속적으로 센서를 통해 데이터 수집(온/습도, 조도, 자이로, 초음파 센서 값)
 * CAN BUS를 통해 지속적으로 데이터를 전송한다
 * RPi에서 CAN 통신 전용 스레드를 통해 센서 데이터를 받고, SOCKET을 통해 안드로이드로 데이터 값을 전달한다.
+
+### 4.3 TCP/IP 기반 MQTT 통신을 활용한 사고 알림 시스템
+**GOALS**
+
+1. 서로 다른 장치 간 연계 시스템 구축하기
+2. MQTT 통신을 활용한 데이터 전송
+3. 서로 다른 종류의 단말 간 데이터 교환(ESP32, RPi)
+
+<p align="center"><img src="./imgs/4.3_architecture.PNG"></p>
+
+<p align="center">그림10 - 구조도</p>
+
+<p align="center"><img src="./imgs/4.3_implementation.PNG"></p>
+
+<p align="center">그림11 - EPS32 trigger 발생 시 RPi로 신호 전달</p>
+
+**구현 원리**
+
+* 2대의 디바이스 - GPS & 불꽃 감지 및 자이로 센서 측정 단말(ESP32), GPS 데이터 가공 및 활용 단말(RPi)
+* ESP32에서는 지속적으로 충격 감지, 불꽃 감지, GPS 데이터를 수집한다
+* 특정 trigger가 발생하면, MQTT 통신을 통해 현재 GPS 값을 RPi로 전달한다
+* RPi에서는 받은 GPS 정보를 기반으로 역지오코딩을 통해 위도,경도를 위치 정보로 교환해 사고 위치를 알려준다.
+
