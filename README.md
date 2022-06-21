@@ -66,3 +66,38 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * 다른 종류의 단말 간 통신(RPI, ARDUINO UNO)
 * 3대 이상의 multiple devices
 
+<hr/>
+
+## 4. MAIN PROJECT
+
+> CRC - Communications Remote Controlled Car
+
+* CAN 통신을 활용한 제어 시스템 간 데이터 교환 & 제어 연계 시스템 구축
+* TCP/IP 기반 SOCKET 통신을 활용한 데이터 수집 & 시각화
+* TCP/IP 기반 MQTT 통신을 활용한 사고 알림 시스템
+* Bluetooth 통신 기반 원격 제어(with ESP32 & Wii remote)
+
+### 4.1 CAN 통신을 활용한 제어 시스템 간 데이터 교환 & 제어 연계 시스템 구축
+**GOALS**
+
+1. 서로 다른 장치 간 연계 시스템 구축하기
+2. CAN 통신 프로토콜을 활용해 데이터 교환 & 자동 처리
+3. 서로 다른 종류의 단말 간 데이터 교환(Arduino, RPI)
+
+<p align="center"><img src="./imgs/4.1_architecture.PNG"></p>
+
+<p align="center">그림6 - 구조도</p>
+
+<p align="center"><img src="./imgs/4.1_implementation.PNG"></p>
+
+<p align="center">그림5 - 조도 센서 with CAN 동작 화면</p>
+
+**구현 원리**
+
+* 3대의 디바이스 - 조도 센서 및 온/습도 센서 데이터 측정 단말(MEGA), LED 제어 단말(UNO), 온/습도 데이터 저장 단말(RPI)
+* MEGA에서는 지속적으로 센서를 통해 데이터 수집
+* 조도 센서 값이 특정 임계점을 넘는 순간 CAN BUS를 통해 데이터를 SEND
+* UNO에서는 해당 trigger가 발생하면, interrupt를 발생시켜 LED를 켜게 된다.
+* RPI는 CAN 통신 전용 스레드를 통해 MEGA로부터 각종 센서 데이터를 받고, 지속적으로 저장한다.
+
+
