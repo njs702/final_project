@@ -1,2 +1,2 @@
 # final_project
-final project using socket &amp; CAN with RPi4,Arduino UNO
+final project using socket &amp; CAN with RPi4,Arduino UNO, Mega, ESP32(bluetooth)
