@@ -90,7 +90,7 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 
 <p align="center"><img src="./imgs/4.1_implementation.PNG"></p>
 
-<p align="center">그림5 - 조도 센서 with CAN 동작 화면</p>
+<p align="center">그림7 - 조도 센서 with CAN 동작 화면</p>
 
 **구현 원리**
 
@@ -100,4 +100,24 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * UNO에서는 해당 trigger가 발생하면, interrupt를 발생시켜 LED를 켜게 된다.
 * RPI는 CAN 통신 전용 스레드를 통해 MEGA로부터 각종 센서 데이터를 받고, 지속적으로 저장한다.
 
+### 4.2 TCP/IP 기반 SOCKET 통신을 활용한 데이터 수집 & 시각화
+**GOALS**
 
+1. 서로 다른 장치 간 연계 시스템 구축하기
+2. SOCKET 통신을 활용한 데이터 전송
+3. 서로 다른 종류의 단말 간 데이터 교환(아두이노, RPi, Android)
+
+<p align="center"><img src="./imgs/4.2_architecture.PNG"></p>
+
+<p align="center">그림8 - 구조도</p>
+
+<p align="center"><img src="./imgs/4.2_implementation.PNG"></p>
+
+<p align="center">그림9 - RPi 데이터 수집, Android 데이터 시각화</p>
+
+**구현 원리**
+
+* 3대의 디바이스 - 센서 데이터 측정 단말(MEGA), 데이터 저장 및 전송 단말(RPi), 데이터 시각화 및 제어 단말(Android)
+* MEGA에서는 지속적으로 센서를 통해 데이터 수집(온/습도, 조도, 자이로, 초음파 센서 값)
+* CAN BUS를 통해 지속적으로 데이터를 전송한다
+* RPi에서 CAN 통신 전용 스레드를 통해 센서 데이터를 받고, SOCKET을 통해 안드로이드로 데이터 값을 전달한다.
