@@ -15,3 +15,11 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 ## 2. 시스템 구조
 
 <p align="center"><img src="./imgs/system_architecture.PNG"></p>
+
+## 3. THREE MINI PROJECTS
+
+* Windows socket 기반 채팅 프로그램 - [GITHUB LINK](https://github.com/njs702/project_oneclick)
+* 차량 주변 기기 통신 프로젝트 - [GITHUB LINK](https://github.com/njs702/project_SCE)
+* CAN BUS 데이터 모니터링 프로젝트 - [GITHUB LINK](https://github.com/njs702/CAN_BUS)
+
+### 3.1 Windows socket 기반 채팅 프로그램
