@@ -100,6 +100,8 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * UNO에서는 해당 trigger가 발생하면, interrupt를 발생시켜 LED를 켜게 된다.
 * RPI는 CAN 통신 전용 스레드를 통해 MEGA로부터 각종 센서 데이터를 받고, 지속적으로 저장한다.
 
+<hr/>
+
 ### 4.2 TCP/IP 기반 SOCKET 통신을 활용한 데이터 수집 & 시각화
 **GOALS**
 
@@ -121,6 +123,8 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * MEGA에서는 지속적으로 센서를 통해 데이터 수집(온/습도, 조도, 자이로, 초음파 센서 값)
 * CAN BUS를 통해 지속적으로 데이터를 전송한다
 * RPi에서 CAN 통신 전용 스레드를 통해 센서 데이터를 받고, SOCKET을 통해 안드로이드로 데이터 값을 전달한다.
+
+<hr/>
 
 ### 4.3 TCP/IP 기반 MQTT 통신을 활용한 사고 알림 시스템
 **GOALS**
@@ -144,6 +148,8 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * 특정 trigger가 발생하면, MQTT 통신을 통해 현재 GPS 값을 RPi로 전달한다
 * RPi에서는 받은 GPS 정보를 기반으로 역지오코딩을 통해 위도,경도를 위치 정보로 교환해 사고 위치를 알려준다.
 
+<hr/>
+
 ### 4.4 Bluetooth 통신 기반 원격 제어(with ESP32 & Wii remote)
 **GOALS**
 
@@ -166,3 +172,36 @@ Project using socket &amp; bluetooth &amp; CAN with RPi4,Arduino UNO, Mega, ESP3
 * 조이스틱의 방향에 따라 데이터를 분기해 bluetooth로 전달한다.
 * 아두이노에서는 해당 데이터를 받고 받은 신호에 따라 모터 드라이버 모듈을 제어한다.
 
+<hr/>
+
+## 5. 기술스택 & 구현 환경
+
+### 5.1 기술스택
+
+* 디바이스 - Android, Arduino UNO, Arduino MEGA, RPi4, ESP32
+* 협업 및 버전 관리 도구 - Jira, GIT, GITFLOW, GITHUB
+* 통신 관련 - CAN, Bluetooth, Socket, MQTT
+* 조이스틱 - Wii remote nunchuk
+
+<p align="center"><img src="./imgs/stack.PNG"></p>
+
+<p align="center">그림14 - 기술스택</p>
+
+<hr/>
+
+### 5.2 구현환경
+
+* 운영체제 - Linux(RPi), Windows(Arduino)
+* 개발 툴 - Android studio
+* 빌드 도구 - Gradle, Arduino IDE
+* 개발 환경 - Arduino IDE + VSCODE, Visual studio 2022
+
+<p align="center"><img src="./imgs/env.PNG"></p>
+
+<p align="center">그림15 - 구현환경</p>
+
+<hr/>
+
+## 6. 구현 결과 & 결론
+
+### 6.1 구현 결과
